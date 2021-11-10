@@ -2,4 +2,4 @@
 
 **uTools 开发者工具** 中将 `plugin.json` 加入到本地开发
 
-**20211110 二次开发修改 Chrome 为 CentBrowser**
+**20211110 二次开发修改 Edge 为 CentBrowser**
