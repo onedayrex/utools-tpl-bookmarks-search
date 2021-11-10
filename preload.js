@@ -59,19 +59,23 @@ function openUrlByChrome (url) {
   }
 }
 
-function openUrlByEdge (url) {
+function openUrlByCentBrowser (url) {
   if (process.platform === 'win32') {
-    const args = ['shell:AppsFolder\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge']
-    args.push(url)
-    cp.spawn('start', args, { shell: 'cmd.exe', detached: true }).once('error', () => {
+    const suffix = `${path.sep}CentBrowser${path.sep}Application${path.sep}chrome.exe`
+    const prefixes = [process.env['PROGRAMFILES(X86)'], process.env.PROGRAMFILES, process.env.LOCALAPPDATA].filter(Boolean)
+    const prefix = prefixes.find(prefix => fs.existsSync(path.join(prefix, suffix)))
+    const chromeApp = path.join(prefix, suffix)
+    if (chromeApp) {
+      cp.spawn(chromeApp, [url], { detached: true })
+    } else {
       window.utools.shellOpenExternal(url)
-    })
+    }
     return
   }
   if (process.platform === 'darwin') {
-    const edgeApp = '/Applications/Microsoft Edge.app'
-    if (fs.existsSync(edgeApp)) {
-      cp.spawn('open', ['-a', edgeApp, url], { detached: true })
+    const chromeApp = '/Applications/CentBrowser.app'
+    if (fs.existsSync(chromeApp)) {
+      cp.spawn('open', ['-a', chromeApp, url], { detached: true })
     } else {
       window.utools.shellOpenExternal(url)
     }
@@ -88,7 +92,7 @@ window.exports = {
         let edgeDataDir
         if (process.platform === 'win32') {
           chromeDataDir = path.join(process.env.LOCALAPPDATA, 'Google/Chrome/User Data')
-          edgeDataDir = path.join(process.env.LOCALAPPDATA, 'Microsoft/Edge/User Data')
+          edgeDataDir = path.join(process.env.LOCALAPPDATA, 'CentBrowser/User Data')
         } else if (process.platform === 'darwin') {
           chromeDataDir = path.join(window.utools.getPath('appData'), 'Google/Chrome')
           edgeDataDir = path.join(window.utools.getPath('appData'), 'Microsoft Edge')
@@ -97,7 +101,7 @@ window.exports = {
           bookmarksDataCache.push(...getBookmarks(chromeDataDir, 'chrome'))
         }
         if (fs.existsSync(edgeDataDir)) {
-          bookmarksDataCache.push(...getBookmarks(edgeDataDir, 'edge'))
+          bookmarksDataCache.push(...getBookmarks(edgeDataDir, 'centBrowser'))
         }
         if (bookmarksDataCache.length > 0) {
           bookmarksDataCache = bookmarksDataCache.sort((a, b) => a.addAt - b.addAt)
@@ -116,7 +120,7 @@ window.exports = {
         if (itemData.browser === 'chrome') {
           openUrlByChrome(itemData.url)
         } else {
-          openUrlByEdge(itemData.url)
+          openUrlByCentBrowser(itemData.url)
         }
         window.utools.outPlugin()
       }
